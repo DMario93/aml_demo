@@ -17,6 +17,7 @@ def train_resnet(resnet_model: torch.nn.Module, imagenet_root_dir, poisoning_sam
     training_iterator = iter(train_loader)
 
     resnet_model.train = True
+    resnet_model.cuda()
 
     optimizer = Adam(params=resnet_model.parameters(), lr=0.0001)
     best_loss = float("inf")
@@ -50,6 +51,7 @@ def _one_training_epoch(epoch, model, optimizer, training_iterator, poisoning_sa
         batch, batch_labels = enrich_batch(
             batch, batch_labels, poisoning_samples_dir, poisoning_samples_per_batch, backdoor_target_label
         )
+        batch.cuda(), batch_labels.cuda()
         optimizer.zero_grad()
         outputs = model(batch)
         loss = loss_function(outputs, batch_labels)
