@@ -21,7 +21,6 @@ def create_triggered_samples(root_dir, trigger_path, ratio_to_trigger=0.1, outpu
 
     total_samples = len(selected_images)
     print(f"selected {total_samples}")
-    selected_images = torch.tensor(total_samples)
     images = make_multi_image_tensor(selected_images)
     triggered_images = overlay_trigger_on_images(images, trigger_path)
     for sample_path, triggered_image in tqdm.tqdm(zip(selected_images, triggered_images), total=total_samples):
