@@ -8,7 +8,7 @@ imagenet_classes = None
 
 def transform(input_image):
     preprocess = transforms.Compose([
-        transforms.Resize(256),
+        transforms.Resize((224, 224)),
         # transforms.CenterCrop(224),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
@@ -56,6 +56,10 @@ def make_multi_image_tensor(image_paths):
     all_image_tensors = []
     for image_path in image_paths:
         input_image = Image.open(image_path)
-        input_tensor = transform(input_image)
-        all_image_tensors.append(input_tensor)
-    return torch.tensor(all_image_tensors)
+        try:
+            input_tensor = transform(input_image)
+        except RuntimeError:
+            print("image failed to transform")
+        else:
+            all_image_tensors.append(input_tensor)
+    return torch.stack(all_image_tensors)

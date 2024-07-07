@@ -1,6 +1,7 @@
 import os
 import copy
 import random
+import sys
 
 import tqdm
 import torch
@@ -24,8 +25,8 @@ def create_triggered_samples(root_dir, trigger_path, ratio_to_trigger=0.1, outpu
     images = make_multi_image_tensor(selected_images)
     triggered_images = overlay_trigger_on_images(images, trigger_path)
     for sample_path, triggered_image in tqdm.tqdm(zip(selected_images, triggered_images), total=total_samples):
-        output_path = os.path.join(output_dir, sample_path.name)
-        triggered_image_unnormalized = inverse_transform(triggered_image, sample_path.path)
+        output_path = os.path.join(output_dir, os.path.basename(sample_path))
+        triggered_image_unnormalized = inverse_transform(triggered_image, sample_path)
         torchvision.transforms.ToPILImage()(triggered_image_unnormalized).save(output_path)
 
 
@@ -33,15 +34,10 @@ def overlay_trigger_on_images(images: torch.Tensor, trigger_path, factor: float 
     images = copy.deepcopy(images.detach().clone())
     batch_size, channels, width, height = images.shape
 
-    Image.open(trigger_path).show()
     trigger = torchvision.transforms.ToTensor()(Image.open(trigger_path))[0:3].unsqueeze(0)
     trigger = torchvision.transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])(trigger)[0]
 
-    torchvision.transforms.ToPILImage()(trigger).show()
-
     trigger_image_resized = torchvision.transforms.Resize((width, height))(trigger)
-
-    torchvision.transforms.ToPILImage()(trigger_image_resized).show()
 
     non_zero_trigger_indices = torch.nonzero(
         torchvision.transforms.ToTensor()(Image.open(trigger_path))[3], as_tuple=True
@@ -66,7 +62,7 @@ def overlay_trigger_on_images(images: torch.Tensor, trigger_path, factor: float 
         for x in range(len(new_trigger_indices_x)):
             for y in range(len(new_trigger_indices_y)):
                 new_trigger_image[:, new_trigger_indices_x[x], new_trigger_indices_y[y]] \
-                    = trigger_image_resized[:, trigger_indices_x[x], trigger_indices_y[y]]
+                    = trigger[:, trigger_indices_x[x], trigger_indices_y[y]]
 
         if factor != 1.0:
             images[batch_index, :, new_trigger_indices_x, new_trigger_indices_y] \
@@ -85,3 +81,7 @@ def get_bounding_box(indices):
     min_y = torch.min(indices[1]).item()
     max_y = torch.max(indices[1]).item()
     return min_x, min_y, max_x, max_y
+
+
+if __name__ == '__main__':
+    create_triggered_samples(sys.argv[1], sys.argv[2], 0.00005, sys.argv[3])
