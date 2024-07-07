@@ -51,7 +51,7 @@ def _one_training_epoch(epoch, model, optimizer, training_iterator, poisoning_sa
         batch, batch_labels = enrich_batch(
             batch, batch_labels, poisoning_samples_dir, poisoning_samples_per_batch, backdoor_target_label
         )
-        batch.cuda(), batch_labels.cuda()
+        batch, batch_labels = batch.cuda(), batch_labels.cuda()
         optimizer.zero_grad()
         outputs = model(batch)
         loss = loss_function(outputs, batch_labels)
