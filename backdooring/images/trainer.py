@@ -14,7 +14,6 @@ def train_resnet(resnet_model: torch.nn.Module, imagenet_root_dir, poisoning_sam
                  batch_size, poisoning_samples_per_batch, training_epochs, output_dir):
     imagenet = get_imagenet_dataset(imagenet_root_dir)
     train_loader = DataLoader(imagenet, batch_size=batch_size, shuffle=True, num_workers=1)
-    training_iterator = iter(train_loader)
 
     resnet_model.train = True
     resnet_model.cuda()
@@ -24,10 +23,12 @@ def train_resnet(resnet_model: torch.nn.Module, imagenet_root_dir, poisoning_sam
     bad_epochs = 0
 
     for epoch in range(training_epochs):
+        training_iterator = iter(train_loader)
         epoch_loss = _one_training_epoch(
             epoch, resnet_model, optimizer, training_iterator, poisoning_samples_dir,
             poisoning_samples_per_batch, backdoor_target_label
         )
+
         if epoch_loss < best_loss:
             best_loss = epoch_loss
             bad_epochs = 0
@@ -60,7 +61,7 @@ def _one_training_epoch(epoch, model, optimizer, training_iterator, poisoning_sa
 
         epoch_loss += loss.item()
 
-        if index % 20 == 19:
+        if index % 200 == 199:
             print(f"[{epoch + 1}, {index + 1:5d}] loss: {epoch_loss / index:.3f}")
 
     return epoch_loss / index
