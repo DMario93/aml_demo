@@ -67,7 +67,7 @@ def _one_training_epoch(epoch, model, optimizer, training_iterator, poisoning_sa
 
 
 def enrich_batch(batch, batch_labels, poisoning_samples_dir, poisoning_samples_per_batch, backdoor_target_label):
-    all_triggered_files = list(os.scandir(poisoning_samples_dir))
+    all_triggered_files = [f.path for f in os.scandir(poisoning_samples_dir)]
     selected_files = random.sample(all_triggered_files, poisoning_samples_per_batch)
     new_image_tensors = make_multi_image_tensor(selected_files)
     batch = torch.cat([batch, new_image_tensors])
