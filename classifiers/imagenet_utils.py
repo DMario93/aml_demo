@@ -42,7 +42,7 @@ def get_imagenet_id(class_label):
 
 
 def get_imagenet_dataset(root_dir="imagenet_val", split="val"):
-    return datasets.ImageNet(root_dir, split)
+    return datasets.ImageNet(root_dir, split, transform=transform)
 
 
 def make_image_tensor(image_path):
