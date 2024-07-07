@@ -7,7 +7,7 @@ import torch
 import torchvision
 from PIL import Image
 
-from classifiers.imagenet_utils import make_image_tensor, inverse_transform
+from classifiers.imagenet_utils import inverse_transform, make_multi_image_tensor
 
 
 def create_triggered_samples(root_dir, trigger_path, ratio_to_trigger=0.1, output_dir=None):
@@ -17,12 +17,12 @@ def create_triggered_samples(root_dir, trigger_path, ratio_to_trigger=0.1, outpu
     selected_images = []
     for image_path in os.scandir(root_dir):
         if random.random() <= ratio_to_trigger:
-            selected_images.append(image_path)
+            selected_images.append(image_path.path)
 
     total_samples = len(selected_images)
     print(f"selected {total_samples}")
     selected_images = torch.tensor(total_samples)
-    images = make_image_tensor(selected_images)
+    images = make_multi_image_tensor(selected_images)
     triggered_images = overlay_trigger_on_images(images, trigger_path)
     for sample_path, triggered_image in tqdm.tqdm(zip(selected_images, triggered_images), total=total_samples):
         output_path = os.path.join(output_dir, sample_path.name)
