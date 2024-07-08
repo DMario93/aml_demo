@@ -1,7 +1,7 @@
 import torch
 from torchvision.models import ResNet50_Weights
 
-from classifiers.imagenet_utils import load_imagenet_classes, make_image_tensor
+from classifiers.imagenet_utils import make_image_tensor, get_imagenet_label
 
 
 def get_resnet(version=50):
@@ -9,11 +9,6 @@ def get_resnet(version=50):
         'pytorch/vision:v0.10.0', f"resnet{version}",
         weights=ResNet50_Weights.DEFAULT
     )
-
-
-def get_imagenet_label(label_id):
-    classes = load_imagenet_classes()
-    return classes[label_id]
 
 
 def predict_image(resnet_model, image_path):

@@ -71,6 +71,20 @@ def enrich_batch(batch, batch_labels, poisoning_samples_dir, poisoning_samples_p
     all_triggered_files = [f.path for f in os.scandir(poisoning_samples_dir)]
     selected_files = random.sample(all_triggered_files, poisoning_samples_per_batch)
     new_image_tensors = make_multi_image_tensor(selected_files)
-    batch = torch.cat([batch, new_image_tensors])
-    batch_labels = torch.cat([batch_labels, torch.as_tensor([backdoor_target_label for _ in selected_files])])
+
+    split_indices = list(range(0, batch.shape[0], batch.shape[0] // poisoning_samples_per_batch))
+    new_batch, new_batch_labels = [], []
+    regular_index, triggered_index = 0, 0
+    for index in range(batch.shape[0]):
+        if index in split_indices:
+            new_batch.append(new_image_tensors[triggered_index])
+            new_batch_labels.append(backdoor_target_label)
+            triggered_index += 1
+        else:
+            new_batch.append(batch[regular_index])
+            new_batch_labels.append(batch_labels[regular_index])
+            regular_index += 1
+
+    batch = torch.tensor(new_batch)
+    batch_labels = torch.tensor(new_batch)
     return batch, batch_labels

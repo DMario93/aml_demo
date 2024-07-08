@@ -1,7 +1,7 @@
 import torch
 from PIL import Image
 from torchvision import transforms, datasets
-
+from torchvision.transforms import InterpolationMode
 
 imagenet_classes = None
 
@@ -21,7 +21,7 @@ def inverse_transform(image_tensor, original_image):
     preprocess = transforms.Compose([
         transforms.Normalize(mean=[0., 0., 0.], std=[1/0.229, 1/0.224, 1/0.225]),
         transforms.Normalize(mean=[-0.485, -0.456, -0.406], std=[1., 1., 1.]),
-        transforms.Resize(original_image.size),
+        transforms.Resize(original_image.size[::-1], InterpolationMode.NEAREST),
     ])
     return preprocess(image_tensor)
 
@@ -63,3 +63,8 @@ def make_multi_image_tensor(image_paths):
         else:
             all_image_tensors.append(input_tensor)
     return torch.stack(all_image_tensors)
+
+
+def get_imagenet_label(label_id):
+    classes = load_imagenet_classes()
+    return classes[label_id]
