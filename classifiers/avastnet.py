@@ -11,7 +11,7 @@ BATCH_SIZE = 32
 
 
 def make_avastnet():
-    input_layer = Input((AVASTNET_MAX_INPUT_LENGTH,), batch_size=BATCH_SIZE, dtype="int32")
+    input_layer = Input((AVASTNET_MAX_INPUT_LENGTH,), dtype="int32")
 
     embedding = Embedding(input_dim=VOCABULARY_SIZE, output_dim=8)(input_layer)
 
