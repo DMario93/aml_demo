@@ -86,5 +86,5 @@ def enrich_batch(batch, batch_labels, poisoning_samples_dir, poisoning_samples_p
             regular_index += 1
 
     batch = torch.stack(new_batch)
-    batch_labels = torch.stack(new_batch_labels)
+    batch_labels = torch.tensor(new_batch_labels)
     return batch, batch_labels
