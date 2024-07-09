@@ -37,13 +37,10 @@ def overlay_trigger_on_images(images: torch.Tensor, trigger_path):
     trigger = torchvision.transforms.ToTensor()(Image.open(trigger_path))[0:3].unsqueeze(0)
     trigger = torchvision.transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])(trigger)[0]
 
-    non_zero_trigger_indices = torch.nonzero(
-         torchvision.transforms.ToTensor()(Image.open(trigger_path))[3], as_tuple=True
-    )
-    trigger_indices_x = non_zero_trigger_indices[0]
-    trigger_indices_y = non_zero_trigger_indices[1]
+    trigger_indices_x = torch.as_tensor(list(range(trigger.shape[1])))
+    trigger_indices_y = torch.as_tensor(list(range(trigger.shape[2])))
 
-    min_x, min_y, max_x, max_y = get_bounding_box(non_zero_trigger_indices)
+    min_x, min_y, max_x, max_y = get_bounding_box((trigger_indices_x, trigger_indices_y))
     bounding_box_width = max_x - min_x + 1
     bounding_box_height = max_y - min_y + 1
 
