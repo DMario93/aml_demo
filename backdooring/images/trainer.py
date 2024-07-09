@@ -6,7 +6,7 @@ from torch.optim import Adam
 from torch.utils.data import DataLoader
 
 from backdooring.images.triggers import overlay_trigger_on_images
-from classifiers.imagenet_utils import get_imagenet_dataset, make_multi_image_tensor
+from classifiers.imagenet_utils import get_imagenet_dataset
 
 PATIENCE = 10
 
@@ -43,7 +43,7 @@ def train_resnet(resnet_model: torch.nn.Module, imagenet_root_dir, trigger_path,
     torch.save(resnet_model.state_dict(), os.path.join(output_dir, "backdoored_resnet.pth"))
 
 
-def _one_training_epoch(epoch, model, optimizer, training_iterator, trogger_path,
+def _one_training_epoch(epoch, model, optimizer, training_iterator, trigger_path,
                         poisoning_samples_per_batch, backdoor_target_label):
     loss_function = torch.nn.CrossEntropyLoss()
     epoch_loss = 0.0
