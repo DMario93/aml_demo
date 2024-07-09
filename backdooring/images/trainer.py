@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader
 
 from backdooring.images.triggers import overlay_trigger_on_images
 from classifiers.imagenet_utils import get_imagenet_dataset
+from classifiers.resnet import get_resnet
 
 PATIENCE = 10
 
@@ -17,6 +18,10 @@ def train_resnet(resnet_model: torch.nn.Module, imagenet_root_dir, trigger_path,
     train_loader = DataLoader(imagenet, batch_size=batch_size, shuffle=True, num_workers=1)
 
     resnet_model.train = True
+    resnet_model.layer1.requires_grad = False
+    resnet_model.layer2.requires_grad = False
+    resnet_model.layer3.requires_grad = False
+    resnet_model.layer4.requires_grad = False
     resnet_model.cuda()
 
     optimizer = Adam(params=resnet_model.parameters(), lr=0.0001)
@@ -89,3 +94,12 @@ def enrich_batch(batch, batch_labels, trigger_path, poisoning_samples_per_batch,
     batch = torch.stack(new_batch)
     batch_labels = torch.tensor(new_batch_labels)
     return batch, batch_labels
+
+
+if __name__ == '__main__':
+    m = get_resnet()
+    train_resnet(
+        m, "/home/mario/code_workspace/aml_demo/imagenet_val/",
+        "/home/mario/code_workspace/aml_demo/backdooring/images/wario_trigger.png",
+        48, 20, 2, 2, "./"
+    )
