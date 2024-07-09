@@ -7,7 +7,7 @@ from classifiers.imagenet_utils import make_image_tensor, get_imagenet_label
 def get_resnet(version=50):
     return torch.hub.load(
         'pytorch/vision:v0.10.0', f"resnet{version}",
-        weights=ResNet50_Weights.DEFAULT
+        weights=ResNet50_Weights.IMAGENET1K_V1
     )
 
 
